@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Address Book & Notes</title>
+
+    <!-- Bootstrap CSS for quick layout, grid, buttons, cards -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+
     <style>
+        /* page background to separate main content visually */
         body {
             background-color: #f0f4f8;
         }
+
+        /* card that displays each contact */
         .contact-card {
             background-color: #ffffff;
             border: 1px solid #ddd;
@@ -19,19 +25,24 @@
             width: 180px;
             margin: 10px;
         }
+
         .contact-name {
             font-weight: bold;
             margin-bottom: 10px;
         }
+
         .contact-phone {
             color: #555;
         }
+
+        /* container for multiple contacts laid out side by side */
         .contact-list {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
         }
-        /* Make sure there's a max of 5 cards in one row */
+
+        /* keep max of 5 cards per row by forcing each to take ~20% */
         .contact-list .contact-card {
             flex: 1 1 calc(20% - 20px);
             max-width: calc(20% - 20px);
@@ -39,13 +50,18 @@
     </style>
 </head>
 <body>
+    <!-- dark banner at top, app title inside -->
     <div class="container bg-dark p-5">
         <h1 class="text-white text-center">My Contacts!</h1>
     </div>
     <br>
+
     <div class="container mt-5">
         
-        <!-- Flash Messages -->
+        <!-- Flask flash messages:
+            - Backend can send a one-time message
+            - If messages exist, loop through and show each inside Bootstrap alert
+            - The close button dismisses the alert without reloading the page-->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -57,7 +73,11 @@
         {% endif %}
         {% endwith %}
 
-        <!-- New Contact Form -->
+        <!-- Form to add a new contact:
+            - User enters name and phone number.
+            - Data is sent using POST request to "/add"
+            - Backend saves it to database
+            - After saving, Flask redirects back and flashes a success message-->
         <div class="card p-4 mb-4">
             <h3>New Contact:</h3>
             <form action="/add" method="POST">
@@ -73,7 +93,11 @@
             </form>
         </div>
 
-        <!-- Saved Contacts -->
+        <!-- Contact display area:
+            - Backend passes a "contacts" list to the template
+            - For each contact in that list, a card is created
+            - Each card shows name, phone, and a delete button
+            - Delete form posts to "/delete/<id>" so backend knows which entry to remove-->
         <div class="card p-4 mb-4">
             <h3>Saved Contacts:</h3>
             <div class="contact-list">
@@ -81,6 +105,8 @@
                 <div class="contact-card">
                     <div class="contact-name">{{ contact['name'] }}</div>
                     <div class="contact-phone">{{ contact['phone'] }}</div>
+
+                    <!-- Delete form: sends POST request to delete route -->
                     <form action="/delete/{{ contact['_id'] }}" method="POST" class="mt-2">
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
@@ -91,6 +117,7 @@
 
     </div>
 
+    <!-- Bootstrap JS bundle adds interactivity-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
