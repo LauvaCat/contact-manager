@@ -1,20 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- declares the character encoding so the browser knows how to correctly interpret all text and symbols -->
     <meta charset="UTF-8">
+
+  <!-- tells the browser to scale the layout to the width of the device screen 
+       this allows Bootstrap’s responsive grid system to work on mobile and desktop 
+       without this, the page would look zoomed out or misaligned on phones -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- text shown in the browser tab, helps user identify the app while switching tabs -->
     <title>Address Book & Notes</title>
 
-    <!-- Bootstrap CSS for quick layout, grid, buttons, cards -->
+  <!-- imports Bootstrap CSS from cdn so we can use its grid, spacing utilities, button styles, and modal system 
+       loading from a CDN improves speed and reliability instead of hosting the CSS file locally -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
 
     <style>
-        /* page background to separate main content visually */
+        /* sets background for entire page 
+           light grayish color */
         body {
             background-color: #f0f4f8;
         }
 
-        /* card that displays each contact */
+        /* individual card that displays each contact 
+           has white background, light border, padding around text 
+           centered text, rounded corners, subtle drop shadow 
+           fixed width so cards align consistently, margin between each card */
         .contact-card {
             background-color: #ffffff;
             border: 1px solid #ddd;
@@ -26,23 +38,30 @@
             margin: 10px;
         }
 
+        /* styles for name text inside card 
+           makes it bold and adds spacing from phone number */
         .contact-name {
             font-weight: bold;
             margin-bottom: 10px;
         }
 
+        /* phone number text is slightly dimmed with gray color */
         .contact-phone {
             color: #555;
         }
 
-        /* container for multiple contacts laid out side by side */
+        /* parent container that holds all contact cards 
+           flex display puts cards side by side 
+           flex-wrap allows cards to wrap to new row when screen is smaller */
         .contact-list {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
         }
 
-        /* keep max of 5 cards per row by forcing each to take ~20% */
+        /* ensures maximum of five cards fit per row 
+           each card takes ~20% of row width minus margin 
+           flex-grow and shrink allow resizing while keeping consistent spacing */
         .contact-list .contact-card {
             flex: 1 1 calc(20% - 20px);
             max-width: calc(20% - 20px);
@@ -50,7 +69,8 @@
     </style>
 </head>
 <body>
-    <!-- dark banner at top, app title inside -->
+    <!-- dark banner at top with padding 
+         contains title text centered in white -->
     <div class="container bg-dark p-5">
         <h1 class="text-white text-center">My Contacts!</h1>
     </div>
@@ -58,55 +78,63 @@
 
     <div class="container mt-5">
         
-        <!-- Flask flash messages:
-            - Backend can send a one-time message
-            - If messages exist, loop through and show each inside Bootstrap alert
-            - The close button dismisses the alert without reloading the page-->
+        <!-- block for displaying flash messages from Flask backend 
+             get_flashed_messages pulls any temporary notifications stored during last request -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
+            <!-- alert styled using Bootstrap 'primary' color 
+                 dismissible so user can close it without reloading page -->
             <div class="alert alert-primary alert-dismissible fade show" role="alert">
                 {{ message }}
+                <!-- close button uses Bootstrap data attribute to hide alert when clicked -->
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             {% endfor %}
         {% endif %}
         {% endwith %}
 
-        <!-- Form to add a new contact:
-            - User enters name and phone number.
-            - Data is sent using POST request to "/add"
-            - Backend saves it to database
-            - After saving, Flask redirects back and flashes a success message-->
+        <!-- form section for adding a new contact 
+             wrapped in Bootstrap card for styling -->
         <div class="card p-4 mb-4">
             <h3>New Contact:</h3>
+            <!-- submits POST request to /add route 
+                 backend receives form data and inserts into database -->
             <form action="/add" method="POST">
                 <div class="mb-3">
+                    <!-- label for name input -->
                     <label for="name" class="form-label">Name</label>
+                    <!-- text input for contact name 
+                         required ensures form cannot be submitted empty -->
                     <input type="text" class="form-control" name="name" placeholder="Full Name" required>
                 </div>
                 <div class="mb-3">
+                    <!-- label for phone input -->
                     <label for="phone" class="form-label">Phone Number</label>
+                    <!-- text input for contact phone number 
+                         also required for submission -->
                     <input type="text" class="form-control" name="phone" placeholder="Phone Number" required>
                 </div>
+                <!-- submit button styled as Bootstrap primary -->
                 <button type="submit" class="btn btn-primary">Add Contact</button>
             </form>
         </div>
 
-        <!-- Contact display area:
-            - Backend passes a "contacts" list to the template
-            - For each contact in that list, a card is created
-            - Each card shows name, phone, and a delete button
-            - Delete form posts to "/delete/<id>" so backend knows which entry to remove-->
+        <!-- section that lists all saved contacts passed from backend -->
         <div class="card p-4 mb-4">
             <h3>Saved Contacts:</h3>
+            <!-- flex container that arranges cards horizontally -->
             <div class="contact-list">
+                <!-- loop through each contact object from backend -->
                 {% for contact in contacts %}
                 <div class="contact-card">
+                    <!-- display contact name and phone -->
                     <div class="contact-name">{{ contact['name'] }}</div>
                     <div class="contact-phone">{{ contact['phone'] }}</div>
 
-                    <!-- Delete form: sends POST request to delete route -->
+                    <!-- form for deleting this specific contact 
+                         sends POST request to /delete/<id> 
+                         Flask uses the contact’s _id to remove from database -->
                     <form action="/delete/{{ contact['_id'] }}" method="POST" class="mt-2">
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
@@ -117,7 +145,8 @@
 
     </div>
 
-    <!-- Bootstrap JS bundle adds interactivity-->
+    <!-- imports Bootstrap JavaScript bundle 
+         enables alert dismiss, modal, dropdowns, and other interactive features without custom JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
